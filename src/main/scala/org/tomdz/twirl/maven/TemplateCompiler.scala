@@ -47,7 +47,6 @@ object TemplateCompiler {
 
       val templates = collectTemplates(sourceDirectory)
 
-      log.info("Compiling " + templates.map(_._1.getAbsolutePath).mkString(", "))
       for ((templateFile, extension, TemplateType(resultType, formatterType)) <- templates) {
         val addImports = additionalImports.asScala.map("import " + _.replace("%format%", extension)).mkString("\n")
         TwirlCompiler.compile(templateFile,
@@ -60,7 +59,7 @@ object TemplateCompiler {
                               targetFile => {
                                 val skipChars = sourceDirectory.toString.length
                                 log.info("Compiling twirl template ..." + templateFile.toString.substring(skipChars) +
-                                         " to .../" + targetFile.getName)
+                                         " to " + targetFile.getName)
                               })
       }
 

@@ -22,7 +22,6 @@ import java.io._
 import java.nio.charset.Charset
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
-import java.util.jar.JarFile
 
 @RunWith(classOf[JUnitRunner])
 object TemplateCompilerSpec extends Specification {
@@ -102,6 +101,7 @@ object Helper {
     import org.tomdz.twirl.TwirlCompiler
 
     import java.net._
+    import java.util.jar.JarFile
 
     val templateCompiler = TwirlCompiler
 
@@ -124,7 +124,7 @@ object Helper {
 
       // need to check for classpath manifest entries which the surefire plugin uses for forked mode
       val manifestClassPathEntries =
-        additionalClassPathEntry.flatMap(entry => TryOption[IOException]{new java.util.jar.JarFile(entry)})
+        additionalClassPathEntry.flatMap(entry => TryOption[IOException]{new JarFile(entry)})
                                 .flatMap(jarFile => {
           val baseUrl = new File(jarFile.getName).toURL
           val jarManifest = jarFile.getManifest
