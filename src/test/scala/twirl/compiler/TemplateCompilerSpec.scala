@@ -160,7 +160,7 @@ object Helper {
     def compile[T](templateName: String, className: String): T = {
       val templateFile = new File(sourceDir, templateName)
       val Some(generated) = templateCompiler.compile(templateFile, sourceDir, generatedDir,
-        "twirl.Helper.Html", "twirl.Helper.HtmlFormat", Charset.forName("UTF-8"))
+        "twirl.compiler.Helper.Html", "twirl.compiler.Helper.HtmlFormat", Charset.forName("UTF-8"))
 
       val mapper = GeneratedSource(generated)
 
