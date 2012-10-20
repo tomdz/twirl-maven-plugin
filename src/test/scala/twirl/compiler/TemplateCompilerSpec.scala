@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package org.tomdz.twirl
+package twirl.compiler
 
 import org.specs2.mutable._
-import org.tomdz.twirl.api.{Appendable, Format}
+import twirl.api.{Appendable, Format}
 
 import java.io._
 import java.nio.charset.Charset
@@ -98,7 +98,6 @@ object Helper {
     import scala.tools.nsc.util.Position
     import scala.tools.nsc.Settings
     import scala.tools.nsc.reporters.ConsoleReporter
-    import org.tomdz.twirl.TwirlCompiler
 
     import java.net._
     import java.util.jar.JarFile
@@ -120,7 +119,7 @@ object Helper {
       object TryOption { def apply[E <: Exception] = new TryOption[E] }
 
       def additionalClassPathEntry: Seq[String] =
-        Class.forName("org.tomdz.twirl.api.Format").getClassLoader.asInstanceOf[URLClassLoader].getURLs.map(_.getFile).map(_.toString)
+        Class.forName("twirl.api.Format").getClassLoader.asInstanceOf[URLClassLoader].getURLs.map(_.getFile).map(_.toString)
 
       // need to check for classpath manifest entries which the surefire plugin uses for forked mode
       val manifestClassPathEntries =
@@ -161,7 +160,7 @@ object Helper {
     def compile[T](templateName: String, className: String): T = {
       val templateFile = new File(sourceDir, templateName)
       val Some(generated) = templateCompiler.compile(templateFile, sourceDir, generatedDir,
-        "org.tomdz.twirl.Helper.Html", "org.tomdz.twirl.Helper.HtmlFormat", Charset.forName("UTF-8"))
+        "twirl.Helper.Html", "twirl.Helper.HtmlFormat", Charset.forName("UTF-8"))
 
       val mapper = GeneratedSource(generated)
 

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.tomdz.twirl
+package twirl.compiler
 
 import org.specs2.mutable._
 import org.junit.runner.RunWith

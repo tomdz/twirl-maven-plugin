@@ -22,7 +22,7 @@ import java.io.File
 import java.nio.charset.Charset
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugin.logging.Log
-import org.tomdz.twirl._
+import twirl.compiler._
 import scala.collection.JavaConverters._
 import scalax.file.ImplicitConversions._
 
@@ -30,9 +30,9 @@ case class TemplateType(resultType: String, formatterType: String)
 
 object TemplateCompiler {
   val templateTypes: PartialFunction[String, TemplateType] = Map(
-    "html" -> TemplateType("org.tomdz.twirl.api.Html", "org.tomdz.twirl.api.HtmlFormat"),
-    "txt"  -> TemplateType("org.tomdz.twirl.api.Txt", "org.tomdz.twirl.api.TxtFormat"),
-    "xml"  -> TemplateType("org.tomdz.twirl.api.Xml", "org.tomdz.twirl.api.XmlFormat")
+    "html" -> TemplateType("twirl.api.Html", "twirl.api.HtmlFormat"),
+    "txt"  -> TemplateType("twirl.api.Txt", "twirl.api.TxtFormat"),
+    "xml"  -> TemplateType("twirl.api.Xml", "twirl.api.XmlFormat")
   )
 
   def compile(sourceDirectory: File,
