@@ -30,9 +30,9 @@ case class TemplateType(resultType: String, formatterType: String)
 
 object TemplateCompiler {
   val templateTypes: PartialFunction[String, TemplateType] = Map(
-    "html" -> TemplateType("org.tomdz.maven.twirl.api.Html", "org.tomdz.maven.twirl.api.HtmlFormat"),
-    "txt"  -> TemplateType("org.tomdz.maven.twirl.api.Txt", "org.tomdz.maven.twirl.api.TxtFormat"),
-    "xml"  -> TemplateType("org.tomdz.maven.twirl.api.Xml", "org.tomdz.maven.twirl.api.XmlFormat")
+    "html" -> TemplateType("org.tomdz.twirl.api.Html", "org.tomdz.twirl.api.HtmlFormat"),
+    "txt"  -> TemplateType("org.tomdz.twirl.api.Txt", "org.tomdz.twirl.api.TxtFormat"),
+    "xml"  -> TemplateType("org.tomdz.twirl.api.Xml", "org.tomdz.twirl.api.XmlFormat")
   )
 
   def compile(sourceDirectory: File,
