@@ -16,13 +16,15 @@
  * https://github.com/playframework/Play20/raw/217271a2d6834b2abefa8eff070ec680c7956a99/framework/src/sbt-plugin/src/main/scala/PlayCommands.scala
  */
 
-package org.tomdz.maven.twirl
+package org.tomdz.twirl.maven
 
 import java.io.File
 import java.nio.charset.Charset
 import org.apache.maven.plugin.MojoExecutionException
-import scala.collection.JavaConverters._
 import org.apache.maven.plugin.logging.Log
+import org.tomdz.twirl._
+import scala.collection.JavaConverters._
+import scalax.file.ImplicitConversions._
 
 case class TemplateType(resultType: String, formatterType: String)
 
@@ -45,6 +47,7 @@ object TemplateCompiler {
 
       val templates = collectTemplates(sourceDirectory)
 
+      log.info("Compiling " + templates.map(_._1.getAbsolutePath).mkString(", "))
       for ((templateFile, extension, TemplateType(resultType, formatterType)) <- templates) {
         val addImports = additionalImports.asScala.map("import " + _.replace("%format%", extension)).mkString("\n")
         TwirlCompiler.compile(templateFile,
@@ -61,27 +64,19 @@ object TemplateCompiler {
                               })
       }
 
-      findFiles(generatedDir, ".*\\.template\\.scala").map(_.getAbsoluteFile)
+      (generatedDir ** "*.template.scala").map(_.toAbsolute.path)
 
     } catch handleTemplateCompilationError
   }
 
-  private def findFiles(directory: File, pattern: String) = {
-    for {
-      file <- directory.listFiles
-      if file.isFile
-      if file.getName.matches(pattern)
-    } yield file
-  }
-
   private def cleanUp(generatedDir: File) {
-    findFiles(generatedDir, ".*\\.template\\.scala").foreach {
+    (generatedDir ** "*.template.scala").seq.flatMap(_.fileOption).foreach {
       GeneratedSource(_).sync()
     }
   }
 
   private def collectTemplates(sourceDirectory: File) = {
-    findFiles(sourceDirectory, ".*\\.scala\\..*").flatMap { file =>
+    (sourceDirectory ** "*.scala.*").seq.flatMap(_.fileOption).flatMap { file: File =>
       val ext = file.getName.split('.').last
       if (templateTypes.isDefinedAt(ext)) Some(file, ext, templateTypes(ext))
       else None

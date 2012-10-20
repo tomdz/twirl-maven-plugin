@@ -17,7 +17,7 @@
  *            the import statements adapted accordingly.
  */
 
-package org.tomdz.maven.twirl
+package org.tomdz.twirl
 
 import scalax.file._
 import java.io.File
@@ -493,7 +493,7 @@ object TwirlCompiler {
       Nil :+ """
 package """ :+ packageName :+ """
 
-import org.tomdz.maven.twirl.api._
+import org.tomdz.twirl.api._
 import TemplateMagic._
 
 """ :+ additionalImports :+ """
@@ -562,7 +562,7 @@ object """ :+ name :+ """ extends BaseScalaTemplate[""" :+ resultType :+ """,For
           p.name.toString + Option(p.tpt.toString).filter(_.startsWith("_root_.scala.<repeated>")).map(_ => ":_*").getOrElse("")
         }.mkString(",") + ")").mkString)
 
-      var templateType = "org.tomdz.maven.twirl.api.Template%s[%s%s]".format(
+      var templateType = "org.tomdz.twirl.api.Template%s[%s%s]".format(
         params.flatten.size,
         params.flatten.map {
           case a if a.mods.isByNameParam => a.tpt.children(1).toString

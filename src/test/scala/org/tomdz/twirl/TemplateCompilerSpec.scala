@@ -13,15 +13,16 @@
  * limitations under the License.
  */
 
-package org.tomdz.maven.twirl
+package org.tomdz.twirl
 
 import org.specs2.mutable._
-import org.tomdz.maven.twirl.api.{Appendable, Format}
+import org.tomdz.twirl.api.{Appendable, Format}
 
 import java.io._
 import java.nio.charset.Charset
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
+import java.util.jar.JarFile
 
 @RunWith(classOf[JUnitRunner])
 object TemplateCompilerSpec extends Specification {
@@ -98,7 +99,7 @@ object Helper {
     import scala.tools.nsc.util.Position
     import scala.tools.nsc.Settings
     import scala.tools.nsc.reporters.ConsoleReporter
-    import org.tomdz.maven.twirl.TwirlCompiler
+    import org.tomdz.twirl.TwirlCompiler
 
     import java.net._
 
@@ -111,8 +112,25 @@ object Helper {
 
     val compiler = {
 
+      class TryOption[E <: Exception] {
+        def apply[A](f: => A)(implicit m: Manifest[E]) = {
+          try { Some(f) } catch { case x if (m.erasure.isInstance(x)) => None }
+        }
+      }
+      object TryOption { def apply[E <: Exception] = new TryOption[E] }
+
       def additionalClassPathEntry: Seq[String] =
-        templateCompiler.getClass.getClassLoader.asInstanceOf[URLClassLoader].getURLs.map(_.getFile).map(_.toString)
+        Class.forName("org.tomdz.twirl.api.Format").getClassLoader.asInstanceOf[URLClassLoader].getURLs.map(_.getFile).map(_.toString)
+
+      // need to check for classpath manifest entries which the surefire plugin uses for forked mode
+      val manifestClassPathEntries =
+        additionalClassPathEntry.flatMap(entry => TryOption[IOException]{new java.util.jar.JarFile(entry)})
+                                .flatMap(jarFile => {
+          val baseUrl = new File(jarFile.getName).toURL
+          val jarManifest = jarFile.getManifest
+          val attrs = jarManifest.getMainAttributes
+          Option(attrs.getValue("Class-Path")).map(_.split("\\s")).flatten.map(newEntry => new URL(baseUrl, newEntry).toString)
+        })
 
       val settings = new Settings
       val scalaObjectSource = Class.forName("scala.ScalaObject").getProtectionDomain.getCodeSource
@@ -123,7 +141,7 @@ object Helper {
         val libPath = scalaObjectSource.getLocation
         val pathList = List(compilerPath, libPath, compiledDir.getAbsolutePath, testCompiledDir.getAbsolutePath)
         val origBootclasspath = settings.bootclasspath.value
-        val fullClassPath = ((origBootclasspath :: pathList) ::: additionalClassPathEntry.toList) map (_.toString)
+        val fullClassPath = ((origBootclasspath :: pathList) ::: additionalClassPathEntry.toList ::: manifestClassPathEntries.toList) map (_.toString)
 
         settings.bootclasspath.value = fullClassPath mkString File.pathSeparator
         settings.outdir.value = generatedClasses.getAbsolutePath
@@ -143,7 +161,7 @@ object Helper {
     def compile[T](templateName: String, className: String): T = {
       val templateFile = new File(sourceDir, templateName)
       val Some(generated) = templateCompiler.compile(templateFile, sourceDir, generatedDir,
-        "org.tomdz.maven.twirl.Helper.Html", "org.tomdz.maven.twirl.Helper.HtmlFormat", Charset.forName("UTF-8"))
+        "org.tomdz.twirl.Helper.Html", "org.tomdz.twirl.Helper.HtmlFormat", Charset.forName("UTF-8"))
 
       val mapper = GeneratedSource(generated)
 

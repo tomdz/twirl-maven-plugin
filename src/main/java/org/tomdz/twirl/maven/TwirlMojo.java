@@ -1,13 +1,12 @@
-package org.tomdz.maven.twirl;
+package org.tomdz.twirl.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Adds tasks to deal with Play Framework Scala template files during the Maven build lifecycle.
@@ -29,7 +28,7 @@ import java.util.Map;
     /**
      * Specifies the directory containing the template files.
      * 
-     * @parameter default-value="${project.build.directory}/src/main/twirl"
+     * @parameter default-value="${basedir}/src/main/twirl"
      */
     private File sourceDirectory;
 
@@ -52,15 +51,16 @@ import java.util.Map;
      *
      * @parameter
      */
-    private List<String> additionalImports;
+    private List<String> additionalImports = new ArrayList<String>();
 
     public void execute() throws MojoExecutionException
     {
+        getLog().info("Compiling all twirl templates in " + sourceDirectory.getAbsolutePath());
         TemplateCompiler.compile(sourceDirectory,
-                                  outputDirectory,
-                                  Charset.forName(sourceCharset),
-                                  additionalImports,
-                                  getLog());
+                                 outputDirectory,
+                                 Charset.forName(sourceCharset),
+                                 additionalImports,
+                                 getLog());
         if (project != null) {
             project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
         }
